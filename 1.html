@@ -1,0 +1,268 @@
+
+
+<!-- Created by khalid abou jaafer -->
+<!DOCTYPE html>
+<html>
+<head>
+ <title>editor khalid aboujaafer</title>
+ <link rel="stylesheet" type="text/css" href="https://rawgit.com/Tony16/cdn/master/codemirror.css">
+ <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+ <script src="https://rawgit.com/Tony16/cdn/master/codemirror.js"></script>
+ <script src="https://rawgit.com/Tony16/cdn/master/FileSaver.js"></script>
+ <script src="https://rawgit.com/Tony16/cdn/master/jszip.js"></script>
+ </head>
+ <body>
+ <nav>
+ <div class="top">
+ <div class="logo">editor</div>
+<ul class="menu">
+
+<li><a href="#" id="clear-btn">clear</a></li>
+<li><a href="#" id="download-btn">install</a></li>
+<li style="background:#00ff00;width:120px;"><a href="#" id="run-btn">Run</a></li>
+</ul>
+ </div>
+ <div class="bottom">
+ <ul class="menu" id="menu">
+ <li><a href="#" class="active">HTML</a></li>
+ <li><a href="#">CSS</a></li>
+ <li><a href="#">JS</a></li>
+ </ul>
+ </div>
+ </nav>
+ <div class="container">
+ <div style="position: relative; height: calc(100% - 100px)">
+ <span class="label" id="label">HTML</span>
+ <textarea id="editor"></textarea>
+ </div>
+ </div>
+ <div class="result" id="result">
+ <label class="close-button" id="close-button">عودة</label>
+ 
+
+ </div>
+<style>
+* {
+ margin: 0px;
+ padding: 0px;
+ font-size: 15px;
+ box-sizing: border-box;
+ font-family: Arial;
+}
+body {
+ height: 100%;
+ overflow: hidden;
+}
+nav {
+ position: fixed;
+ width: 100%;
+ z-index: 1000;
+}
+nav .top {
+ border-bottom: 1px solid #E2E2E2;
+ height: 60px;
+ color: #fff;
+ background-color: #33adff;
+}
+
+nav .top .logo {
+ display: inline-block;
+ float: left;
+ line-height: 60px;
+ font-size: 20px;
+ padding-left: 30px;
+ padding-right: 15px;
+}
+nav .menu {
+ font-size: 0px;
+ list-style: none;
+}
+nav .menu > li {
+ display: inline-block;
+}
+nav .menu > li > a {
+ color: black;
+ display: block;
+ padding: 0 15px;
+ text-decoration: none;
+}
+nav .top .menu > li > a {
+ line-height: 60px;
+ transition: color 0.3s;
+ -webkit-transition: color 0.3s;
+ -o-transition: color 0.3s;
+ -moz-transition: color 0.3s;
+}
+nav .top .menu > li > a:hover {
+ color: #1E78F6;
+}
+
+nav .bottom {
+ border-bottom: 1px solid #E2E2E2;
+ padding-left: 15px;
+ height: 40px;
+}
+nav .bottom .menu > li > a {
+ line-height: 40px;
+ background-color: white,;
+}
+nav .bottom .menu > li > a.active,
+nav .bottom .menu > li > a:hover {
+ background-color: #E2E2E2;
+}
+
+.container {
+ padding-top: 100px;
+}
+
+.container .label {
+ position: absolute;
+ z-index: 900;
+ top: 20px;
+ right: 30px;
+ color: DarkGray;
+}
+
+.container textarea {
+ border: none;
+ resize: none;
+}
+
+.result {
+ z-index: 2000;
+ position: absolute;
+ width: 100%;
+ height: 100%;
+ top: 0px;
+ left: 0px;
+ text-align: center;
+ background-color: #fff;
+ padding: 30px 0;
+ display: none;
+}
+
+.result iframe {
+ 
+ width: 100%;
+ height: 100%;
+ margin-top: calc(100% (100% - 25px));
+ background-color: white;
+ 
+}
+.result .close-button {
+ position: absolute;
+ left: 0;
+ top: 0;
+ font-size: 18px;
+ color: #fff;
+ cursor: pointer;
+ background-color: #393939;
+ width: 100%;
+ height:40px;
+}
+.result .close-button:hover {
+ color: #1E78F6;
+}
+
+</style>
+
+ </body>
+ <!--============
+js
+=================-->
+
+<script>
+window.onload = function () {
+ 
+ var content = {"html": "<!--html-->", "css": "body{\n\n}", "js": "//jQuery is also included\n\n$(function () {\n\n //Your code\n\n});"};
+ 
+ var current = "html";
+ 
+ var editor = CodeMirror.fromTextArea($("#editor")[0], {
+ lineNumbers: true
+ });
+ 
+ editor.setValue(content[current]);
+ 
+ var iframe = document.createElement('iframe');
+ var result = document.getElementById('result');
+ result.appendChild(iframe);
+ 
+ var jquery = "https://code.jquery.com/jquery-3.3.1.min.js";
+ 
+ $("#menu > li > a").click(function(e) {
+ $("#menu > li > a").removeClass("active");
+ $(this).addClass("active");
+ var target = $(this).html().toLowerCase();
+ open(target);
+ e.preventDefault()
+ })
+ 
+ function open(target) {
+ 
+ current = target;
+ $("#label").html(target.toUpperCase());
+ editor.setValue(content[target]);
+
+ }
+ 
+ editor.on("change", function() {
+ 
+ content[current] = editor.getValue();
+ 
+ })
+ //clear
+ $("#clear-btn").click(function() {
+ 
+ content["html"] = "";
+ content["css"] = "";
+ content["js"] = "";
+ editor.setValue("");
+ 
+ })
+ 
+ $("#run-btn").click(function(e) {
+ 
+ if(iframe.contentDocument) {
+ 
+ var html = content["html"];
+ var css = content["css"];
+ var js = content["js"];
+ var a = iframe.contentDocument;
+ var display = "<!DOCTYPE html><html><head><script src='" + jquery + "'></scr\ipt><style>" + css + "</style></head><body>" + html + "<script>\n" + js + "\n</scr\ipt></body></html>";
+ a.write(display);
+ a.close();
+ $("#result").show();
+ 
+ }
+ e.preventDefault();
+ 
+ })
+ 
+ $("#close-button").click(function() {
+ $("#result").fadeOut("fast");
+ })
+ 
+ $("#download-btn").click(function() {
+ var zip = new JSZip();
+ var h = "<!DOCTYPE html>\n<html>\n <head>\n <link rel='stylesheet' type='text/css' href='css/main.css'>\n <script src='" + jquery + "'></scr\ipt>\n <script src='js/main.js'></scr\ipt>\n </head>\n <body>\n " + content["html"] + "\n </body>\n</html>";
+ zip.file("index.html", h);
+ zip.folder("js");
+ zip.file("js/main.js", content["js"]);
+ zip.folder("css");
+ zip.file("css/main.css", content["css"]);
+ zip.generateAsync({type:"blob"}).then(function(content) {
+ 
+ saveAs(content, "Sololearn.zip");
+ });
+ 
+ alert("mod 1");
+ 
+ })
+ 
+}
+
+</script>
+
+</html>
