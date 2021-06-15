@@ -1,0 +1,503 @@
+
+
+<!DOCTYPE html>
+<html>
+<head
+ <meta charset="UTF-8">
+ <title>Sudoku</title>
+ <link rel="stylesheet" href="style.css">
+ 
+</head>
+<body>
+<style>
+
+* {
+ font-family: Arial, sans-serif;
+ font-size: 30px;
+ text-align: center;
+}
+
+html {
+ margin-top: 30px; 
+}
+
+#AREA {
+ font-size: 20px;
+ height
+}
+
+#HIDED {
+ font-size: 20px;
+}
+
+#button {
+ height: 50px;
+ width: 200px;
+ border: solid 3px;
+ background: white;
+}
+
+#playGround {
+ width: 100%;
+}
+
+.sudoku {
+ display: inline-table;
+ border: solid 2px;
+ border-spacing: 1px;
+}
+
+.sudoku td {
+ border: solid 1px;
+ width: 1.5rem;
+ height: 1.5rem;
+}
+
+.sudoku td.top {
+ border-top: solid 2px;
+}
+
+.sudoku td.bottom {
+ border-bottom: solid 2px;
+}
+
+.sudoku td.left {
+ border-left: solid 2px;
+}
+
+.sudoku td.right {
+ border-right: solid 2px;
+}
+
+.sudoku input {
+ width: inherit;
+ height: inherit;
+ padding: 0;
+ text-align: center;
+ color: browm;
+ background: none;
+ font-size: 30px;
+}
+
+/*.sudoku .marked {
+ background-color: #9ce29c;
+}*/
+
+.sudoku .mistake {
+ background-color: darksalmon;
+}
+
+.timer {
+ margin-top: 20px;
+}
+
+.timer. display {
+ margin; 2rem;
+}
+
+</style>
+ <div id = "main">
+ 
+ <button id = "button" type = "button" onclick = "play()">Start game</button>
+ </div>
+ <div id = "playGround"></div>
+ <script src = "main.js"></script>
+
+<script>
+function play () {
+ 
+ var main = document.getElementById("main");
+ var button = document.getElementById("button");
+ main.removeChild(button);
+
+ var util = {
+ randomInteger: function(min, max) {
+ return Math.floor(min + Math.random() * (max + 1 - min));
+ }
+ }
+
+ Function.prototype.method = function (name, func) {
+ if (!this.prototype[name]) {
+ this.prototype[name] = func;
+ return this;
+ }
+ }
+
+ Array.method("fillIncr", function (length, start) {
+ start = start || 0;
+ for (var i = 0; i < length; i++) {
+ this.push(i + start);
+ }
+ return this;
+ })
+
+ Array.method("popRandome", function() {
+ return this.splice(Math.floor(Math.random() * this.length), 1)[0];
+ });
+
+ Array.method("shuffle", function() {
+ for (var i = 0; i < this.length; i+= 1) {
+ var index = Math.floor(Math.random() * (i + 1));
+ var saved = this[index];
+ this[index] = this[i];
+ this[i] = saved;
+ }
+ return this;
+ });
+
+ Array.method("findAndReplace", function(find, replace) {
+ var index = this.indexOf(find);
+ if (index > -1) {
+ this[index] = replace;
+ }
+ });
+
+ Array.method("allMembers", function(value) {
+ for (var i = 0; i < this.length; i+= 1) {
+ if (this[i] !== value) {
+ return false;
+ }
+ }
+ return true;
+ });
+
+ Element.method("addClass", function(className){
+ var classes = this.className.split(" ");
+ if(classes.indexOf(className) < 0){
+ classes.push(className);
+ this.className = classes.join(" ").trim();
+ }
+ return this;
+ })
+
+ Element.method("removeClass", function(className){
+ var classes = this.className.split(" ");
+ var index = classes.indexOf(className);
+ if(index >= 0){
+ classes.splice(index, 1);
+ this.className = classes.join(" ").trim();
+ }
+ return this;
+ })
+
+ var app = {};
+
+ app.Sudoku = function(area) {
+ var that = this;
+ var table = document.createElement("table");
+ table.addClass("sudoku");
+ var area = area || 3;
+ var expo = area * area;
+ for (var i = 0; i < expo; i++) {
+ var row = table.insertRow(-1);
+ for (var j = 0; j < expo; j++) {
+ var cell = row.insertCell(-1);
+ cell.innerHTML = i + ';' + j;
+ switch (i%area) {
+ case 0:
+ cell.addClass("top");
+ break;
+ case area - 1:
+ cell.addClass("bottom");
+ break;
+ }
+ switch (j%area) {
+ case 0:
+ cell.addClass("left");
+ break;
+ case area - 1:
+ cell.addClass("right");
+ break;
+ }
+ }
+ }
+ that.table = table;
+ that.expo = expo;
+ }
+
+ app.Sudoku.prototype = {
+ fill: function(values) {
+ var that = this;
+ that.values = values;
+ for (var i = 0; i < that.expo; i++) {
+ var row = that.table.rows[i];
+ for (var j = 0; j < that.expo; j++) {
+ var cell = that.table.rows[i].cells[j];
+ console.log
+ cell.innerHTML = values[i][j];
+ }
+ }
+ },
+ hide: function(count) {
+ var that = this;
+ for (var i = 0; i < count; i+= 1) {
+ var proccessing = true;
+ 
+ while (proccessing) {
+ var rowNumber = util.randomInteger(0, that.expo -1);
+ var colNumber = util.randomInteger(0, that.expo -1);
+ if (!that.table.rows[rowNumber].cells[colNumber].hided) {
+ that.table.rows[rowNumber].cells[colNumber].hided = true;
+ that.table.rows[rowNumber].cells[colNumber].innerHTML = "";
+ var editCell = document.createElement("input");
+ that.table.rows[rowNumber].cells[colNumber].appendChild(editCell);
+ that.table.rows[rowNumber].cells[colNumber].editCell = editCell;
+ editCell.addEventListener("change", function() {
+ that.check();
+ });
+ proccessing = false;
+ }
+ }
+ }
+ that.check();
+ },
+ check: function() {
+ var that = this;
+ that.unmark();
+ var rows = [], columns = [], areas = [];
+ for (var i = 0; i < that.expo; i+= 1) {
+ rows.push([].fillIncr(that.expo, 1));
+ columns.push([].fillIncr(that.expo, 1));
+ areas.push([].fillIncr(that.expo, 1));
+ }
+ Array.prototype.forEach.call(that.table.rows, function(row, i) {
+ Array.prototype.forEach.call(row.cells, function(cell, j) {
+ var value = that.getValue(cell);
+ rows[i].findAndReplace(value, 0);
+ columns[j].findAndReplace(value, 0);
+ areas[that.getArea(i, j)].findAndReplace(value, 0);
+ });
+ });
+ var correct = {rows: 0, columns: 0, areas: 0};
+ for (var i = 0; i < that.expo; i+= 1) {
+ if (rows[i].allMembers(0)) {
+ that.markRow(i);
+ correct.rows+= 1;
+ }
+ if (columns[i].allMembers(0)) {
+ that.markColumn(i);
+ correct.columns+= 1;
+ }
+ if (areas[i].allMembers(0)) {
+ that.markArea(i);
+ correct.areas+= 1;
+ }
+ }
+ 
+ if (correct.rows === that.expo && 
+    correct.columns === that.expo &&
+    correct.areas === that.expo) {
+ if (typeof(that.win) === "function") {
+ that.win();
+ }
+ }
+ },
+ markCell: function(cell, state) {
+ if (state) {
+ cell.addClass("marked");
+ } else {
+ cell.removeClass("marked");
+ }
+ },
+ getValue: function(cell) {
+   if (cell.editCell) {
+   return parseInt(cell.editCell.value, 10);
+   } else {
+   return parseInt(cell.innerHTML, 10);
+   }
+ },
+ markRow: function(number) {
+ var that = this;
+ Array.prototype.forEach.call(that.table.rows[number].cells, function(cell) {
+ that.markCell(cell, true);
+ });
+ },
+ markColumn: function(number) {
+ var that = this;
+ Array.prototype.forEach.call(that.table.rows, function(row) {
+    that.markCell(row.cells[number], true); 
+ });
+ },
+ markArea: function(number) {
+   var that = this;
+ var area = Math.sqrt(that.expo);
+ var startRow = parseInt(number/area, 10) * area;
+ var startColumn = (number%area) * area;
+ for (var i = 0; i < area; i+= 1) {
+ for (var j = 0; j < area; j++) {
+ that.markCell(that.table.rows[i + startRow].cells[j + startColumn], true);
+ }
+ }
+ },
+ unmark: function() {
+ var that = this;
+ Array.prototype.forEach.call(that.table.rows, function(row, i) {
+ Array.prototype.forEach.call(row.cells, function(cell, j) {
+ that.markCell(cell, false);
+ });
+ });
+ },
+ getArea: function(row, column) {
+ var that = this;
+ var area = Math.sqrt(that.expo);
+ return parseInt(row/area) * area + parseInt(column/area);
+ },
+ }
+ 
+ app.Generator = function(area) {
+ var that = this;
+ var area = area || 3;
+ var expo = area * area;
+ var base = [].fillIncr(expo, 1);
+ var rows = [];
+ for (var i = 0; i < expo; i++) {
+ var row = [];
+ var start = (i%area) * area + parseInt(i/area, 10);
+ for (var j = 0; j < expo; j++) {
+ row.push(base.slice(start, expo).concat(base)[j]);
+ }
+ rows.push(row);
+ }
+ that.rows = rows;
+ that.expo = expo;
+ that.area = area;
+ }
+ 
+ app.Generator.prototype = {
+ invertVertical: function() {
+ var that = this;
+ that.rows.reverse();
+ return that;
+ },
+ invertHorizontal: function() {
+ var that = this;
+ for (var i = 0; i < that.expo; i+= 1) {
+ that.rows[i].reverse();
+ }
+ return that;
+ },
+ getPositions: function() {
+ var source = [].fillIncr(this.area);
+ var positions = {
+ startPos: source.popRandome(),
+ destPos: source.popRandome()
+ }
+ return positions;
+ },
+ swapRows: function(count) {
+ var that = this;
+ for (var i = 0; i < count; i+= 1) {
+ var area = util.randomInteger(0, that.area -1);
+ var values = that.getPositions();
+ var sourcePosition = area * that.area + values.startPos;
+ var destPosition = area * that.area + values.destPos;
+ var row = that.rows.splice(sourcePosition, 1)[0];
+ that.rows.splice(destPosition, 0, row);
+ }
+ return that;
+ },
+ swapColumns: function(count) {
+ var that = this;
+ for (var i = 0; i < count; i+= 1) {
+ var area = util.randomInteger(0, that.area -1);
+ var values = that.getPositions();
+ var sourcePosition = area * that.area + values.startPos;
+ var destPosition = area * that.area + values.destPos;
+ for (var j = 0; j < that.expo; j+= 1) {
+ var cell = that.rows[j].splice(sourcePosition, 1)[0];
+ that.rows[j].splice(destPosition, 0, cell);
+ }
+ return that;
+ }
+ },
+ swapRowsRange: function(count) {
+ var that = this;
+ for (var i = 0; i < count; i+= 1) {
+ var values = that.getPositions();
+ var rows = that.rows.splice(values.startPos * that.area, that.area);
+ var args = [values.destPos * that.area, 0].concat(rows);
+ that.rows.splice.apply(that.rows, args);
+ }
+ return that;
+ },
+ swapColumnsRange: function(count) {
+ var that =  this;
+ for (var i = 0; i < count; i+= 1) {
+ var values = that.getPositions();
+ for (var j = 0; j < that.expo; j+= 1) {
+ var cells = that.rows[j].splice(values.startPos * that.area, that.area);
+ var args = [values.destPos * that.area, 0].concat(cells);
+ that.rows[j].splice.apply(that.rows[j], args);
+ }
+ }
+ return that;
+ },
+ shakeAll: function() {
+ var that = this;
+ var shaked = [].fillIncr(that.expo, 1);
+ shaked.shuffle();
+ for (var i = 0; i < that.expo; i+= 1) {
+ for (var j = 0; j < that.expo; j+= 1) {
+ that.rows[i][j] = shaked[that.rows[i][j] -1]; 
+ }
+ }
+ return that;
+ }
+ 
+ }
+ 
+ app.Timer = function() {
+ var that = this;
+ var content = document.createElement("div").addClass("timer");
+ var display = document.createElement("div").addClass("display");
+ content.appendChild(display);
+ that.now = 0;
+ that.timer = setInterval(function() {
+ that.now+= 1;
+ that.refresh();
+ }, 1000);
+ that.content = content;
+ that.display = display;
+ that.refresh();
+ }
+ app.Timer.prototype = {
+ refresh: function() {
+ var that = this;
+ that.display.innerHTML = "Elapsed time: " + that.now + " seconds."
+ },
+ getScore: function() {
+ return parseInt(Math.pow(app.parameters.hided * app.parameters.area, 2) * 1000 / this.now, 10);
+ },
+ stop: function() {
+ clearInterval(this.timer);
+ }
+ }
+ app.parameters = {
+ area: 4,  //area size
+ shuffle: 15,  //the number of mixings
+ hided: 90   //number of hidden cells
+ }
+ 
+ var tbl = new app.Sudoku(app.parameters.area);
+ document.body.querySelector("#playGround").appendChild(tbl.table);
+ var generator = new app.Generator(app.parameters.area);
+ generator.swapColumnsRange(app.parameters)
+ .swapRowsRange(app.parameters.shuffle)
+ .swapColumns(app.parameters.shuffle)
+ .swapRows(app.parameters.shuffle)
+ .shakeAll();
+ util.randomInteger(0, 1) ? generator.invertHorizontal(): 0;
+ util.randomInteger(0, 1) ? generator.invertVertical(): 0;
+ tbl.fill(generator.rows);
+ tbl.hide(app.parameters.hided);
+ var timer = new app.Timer();
+ document.body.querySelector("#playGround").appendChild(timer.content);
+ tbl.win = function() {
+ alert("Congratulations! You won with a score of " + timer.getScore());
+ timer.stop();
+ }
+}
+
+</script>
+</body>
+</html>
